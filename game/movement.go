@@ -5,7 +5,7 @@ func (g *GameBoard) MoveDown(f *Figure) {
 }
 
 func (g *GameBoard) MoveLeft(f *Figure) {
-	if g.leftWallCollisionDetected(f) {
+	if g.CollisionLeftDetected(f) {
 		return
 	}
 
@@ -15,7 +15,7 @@ func (g *GameBoard) MoveLeft(f *Figure) {
 }
 
 func (g *GameBoard) MoveRight(f *Figure) {
-	if g.rightWallCollisionDetected(f) {
+	if g.CollisionRightDetected(f) {
 		return
 	}
 
