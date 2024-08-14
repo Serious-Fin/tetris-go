@@ -1,26 +1,8 @@
 package game
 
-func (g *GameBoard) CollisionDownDetected(f *Figure) bool {
-	for _, point := range f.Geometries[f.GeometryIndex].Points {
-		if g.cellIsFilled(f.MiddlePos.Row+point.Row+1, f.MiddlePos.Col+point.Col) {
-			return true
-		}
-	}
-	return false
-}
-
-func (g *GameBoard) CollisionRightDetected(f *Figure) bool {
-	for _, point := range f.Geometries[f.GeometryIndex].Points {
-		if g.cellIsFilled(f.MiddlePos.Row+point.Row, f.MiddlePos.Col+point.Col+1) {
-			return true
-		}
-	}
-	return false
-}
-
-func (g *GameBoard) CollisionLeftDetected(f *Figure) bool {
-	for _, point := range f.Geometries[f.GeometryIndex].Points {
-		if g.cellIsFilled(f.MiddlePos.Row+point.Row, f.MiddlePos.Col+point.Col-1) {
+func (g *GameBoard) CollisionDetected(f *Figure, offset Point, figureIndex int) bool {
+	for _, point := range f.Geometries[figureIndex].Points {
+		if g.cellIsFilled(f.MiddlePos.Row+point.Row+offset.Row, f.MiddlePos.Col+point.Col+offset.Col) {
 			return true
 		}
 	}

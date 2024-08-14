@@ -21,7 +21,7 @@ func initialModel(board *game.GameBoard) *gameSession {
 	return &gameSession{
 		gameBoard:     board,
 		figureActive:  true,
-		currentFigure: game.FigureT,
+		currentFigure: *game.GetRandomFigure(),
 	}
 }
 
@@ -34,11 +34,11 @@ func (m *gameSession) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tickMsg:
 		if !m.figureActive {
-			m.currentFigure = game.FigureT
+			m.currentFigure = *game.GetRandomFigure()
 			m.figureActive = true
 		}
 
-		if m.gameBoard.CollisionDownDetected(&m.currentFigure) {
+		if m.gameBoard.CollisionDetected(&m.currentFigure, game.Point{Row: 1, Col: 0}, m.currentFigure.GeometryIndex) {
 			m.gameBoard.DrawFigureAs(&m.currentFigure, game.FilledCell)
 			m.figureActive = false
 		} else {
@@ -68,7 +68,7 @@ func (m *gameSession) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *gameSession) moveFigure(movementFunction func(*game.Figure)) {
 	m.gameBoard.DrawFigureAs(&m.currentFigure, game.EmptyCell)
 	movementFunction(&m.currentFigure)
-	m.gameBoard.DrawFigureAs(&m.currentFigure, game.TravelingCell)
+	m.gameBoard.DrawFigureAs(&m.currentFigure, m.currentFigure.BlockType)
 }
 
 func (m *gameSession) TryMoveFigure(movementFunction func(*game.Figure)) {

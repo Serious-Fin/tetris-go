@@ -5,26 +5,25 @@ func (g *GameBoard) MoveDown(f *Figure) {
 }
 
 func (g *GameBoard) MoveLeft(f *Figure) {
-	if g.CollisionLeftDetected(f) {
+	if g.CollisionDetected(f, Point{Row: 0, Col: -1}, f.GeometryIndex) {
 		return
 	}
-
-	// TODO: Check collision with any blocks on the left
-
 	f.MiddlePos.Col -= 1
 }
 
 func (g *GameBoard) MoveRight(f *Figure) {
-	if g.CollisionRightDetected(f) {
+	if g.CollisionDetected(f, Point{Row: 0, Col: 1}, f.GeometryIndex) {
 		return
 	}
-
-	// TODO: Check collision with any blocks on the right
-
 	f.MiddlePos.Col += 1
 }
 
 func (g *GameBoard) Rotate(f *Figure) {
-	// TODO: rotation collision check
-	f.GeometryIndex = (f.GeometryIndex + 1) % len(f.Geometries)
+	newRotationIndex := (f.GeometryIndex + 1) % len(f.Geometries)
+
+	if g.CollisionDetected(f, Point{Row: 0, Col: 0}, newRotationIndex) {
+		return
+	}
+
+	f.GeometryIndex = newRotationIndex
 }

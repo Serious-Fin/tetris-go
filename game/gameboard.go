@@ -8,9 +8,15 @@ import (
 )
 
 const (
-	EmptyCell     = 0
-	TravelingCell = 1
-	FilledCell    = 2
+	EmptyCell  = 0
+	FilledCell = 1
+	CellO      = 2
+	CellI      = 3
+	CellS      = 4
+	CellZ      = 5
+	CellL      = 6
+	CellJ      = 7
+	CellT      = 8
 )
 
 type GameBoard struct {
@@ -39,28 +45,56 @@ func (b *GameBoard) StringifyBoard() string {
 	stringifiedBoard := ""
 
 	for row := range b.Height {
-		for col := range b.Width {
-			cell, err := stringifyCell(b.Board[row][col])
-			throwError(err)
-			stringifiedBoard += cell
-		}
-		stringifiedBoard += "\n"
+		stringifiedBoard += b.stringifyRow(row)
+	}
+
+	for range b.Width + 2 {
+		stringifiedBoard += aurora.Sprintf(aurora.BgBlue("  "))
 	}
 	stringifiedBoard += "\n"
 
 	return stringifiedBoard
 }
 
+func (b *GameBoard) stringifyRow(row int) string {
+	stringifiedRow := aurora.Sprintf(aurora.BgBlue("  "))
+	for col := range b.Width {
+		cell, err := stringifyCell(b.Board[row][col])
+		throwError(err)
+		stringifiedRow += cell
+	}
+	stringifiedRow += aurora.Sprintf(aurora.BgBlue("  "))
+	return stringifiedRow + "\n"
+}
+
 func stringifyCell(cellValue int) (string, error) {
 	switch cellValue {
 	case EmptyCell:
-		return aurora.Sprintf(aurora.BgWhite("  ")), nil
-
-	case TravelingCell:
-		return aurora.Sprintf(aurora.BgGreen("  ")), nil
+		return aurora.Sprintf(aurora.BgBlack("  ")), nil
 
 	case FilledCell:
-		return aurora.Sprintf(aurora.BgBlack("  ")), nil
+		return aurora.Sprintf(aurora.BgWhite("  ")), nil
+
+	case CellO:
+		return aurora.Sprintf(aurora.BgYellow("  ")), nil
+
+	case CellI:
+		return aurora.Sprintf(aurora.BgCyan("  ")), nil
+
+	case CellS:
+		return aurora.Sprintf(aurora.BgRed("  ")), nil
+
+	case CellZ:
+		return aurora.Sprintf(aurora.BgGreen("  ")), nil
+
+	case CellL:
+		return aurora.Sprintf(aurora.BgBrightRed("  ")), nil
+
+	case CellJ:
+		return aurora.Sprintf(aurora.BgBrightMagenta("  ")), nil
+
+	case CellT:
+		return aurora.Sprintf(aurora.BgMagenta("  ")), nil
 	}
 
 	return "", fmt.Errorf("\"%d\" is not a valid board cell value", cellValue)
