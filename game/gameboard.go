@@ -56,6 +56,9 @@ func stringifyCell(cellValue int) (string, error) {
 	case EmptyCell:
 		return aurora.Sprintf(aurora.BgWhite("  ")), nil
 
+	case TravelingCell:
+		return aurora.Sprintf(aurora.BgGreen("  ")), nil
+
 	case FilledCell:
 		return aurora.Sprintf(aurora.BgBlack("  ")), nil
 	}
@@ -70,14 +73,14 @@ func throwError(err error) {
 	}
 }
 
-func (b *GameBoard) CleanPreviousFigurePosition(figure *Figure) {
+func (b *GameBoard) DrawFigureAs(figure *Figure, state int) {
 	for _, offset := range figure.Geometries[figure.GeometryIndex].Points {
-		b.Board[figure.MiddlePos.Row+offset.Row][figure.MiddlePos.Col+offset.Col] = EmptyCell
+		if b.PointInRenderBounds(figure.MiddlePos.Row+offset.Row, figure.MiddlePos.Col+offset.Col) {
+			b.Board[figure.MiddlePos.Row+offset.Row][figure.MiddlePos.Col+offset.Col] = state
+		}
 	}
 }
 
-func (b *GameBoard) DrawFigureOnBoard(figure *Figure) {
-	for _, offset := range figure.Geometries[figure.GeometryIndex].Points {
-		b.Board[figure.MiddlePos.Row+offset.Row][figure.MiddlePos.Col+offset.Col] = FilledCell
-	}
+func (b *GameBoard) PointInRenderBounds(row, col int) bool {
+	return row >= 0 && row < b.Height && col >= 0 && col < b.Width
 }

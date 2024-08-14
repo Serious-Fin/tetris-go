@@ -18,8 +18,8 @@ type Figure struct {
 var FigureT = Figure{
 	GeometryIndex: 0,
 	MiddlePos: Point{
-		Row: 3,
-		Col: 5,
+		Row: -1,
+		Col: 4,
 	},
 	Geometries: []Geometry{
 		{

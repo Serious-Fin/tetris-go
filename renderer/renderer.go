@@ -33,7 +33,18 @@ func (m *gameSession) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case tickMsg:
-		m.MoveFigure(m.gameBoard.MoveDown)
+		if !m.figureActive {
+			m.currentFigure = game.FigureT
+			m.figureActive = true
+		}
+
+		if m.gameBoard.CollisionDownDetected(&m.currentFigure) {
+			m.gameBoard.DrawFigureAs(&m.currentFigure, game.FilledCell)
+			m.figureActive = false
+		} else {
+			m.TryMoveFigure(m.gameBoard.MoveDown)
+		}
+
 		return m, tickCmd()
 
 	case tea.KeyMsg:
@@ -42,25 +53,28 @@ func (m *gameSession) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case "right":
-			m.MoveFigure(m.gameBoard.MoveRight)
+			m.TryMoveFigure(m.gameBoard.MoveRight)
 
 		case "left":
-			m.MoveFigure(m.gameBoard.MoveLeft)
+			m.TryMoveFigure(m.gameBoard.MoveLeft)
 
 		case "up":
-			m.MoveFigure(m.gameBoard.Rotate)
+			m.TryMoveFigure(m.gameBoard.Rotate)
 		}
 	}
-
-	// Return the updated model to the Bubble Tea runtime for processing.
-	// Note that we're not returning a command.
 	return m, nil
 }
 
-func (m *gameSession) MoveFigure(movementFunction func(*game.Figure)) {
-	m.gameBoard.CleanPreviousFigurePosition(&m.currentFigure)
+func (m *gameSession) moveFigure(movementFunction func(*game.Figure)) {
+	m.gameBoard.DrawFigureAs(&m.currentFigure, game.EmptyCell)
 	movementFunction(&m.currentFigure)
-	m.gameBoard.DrawFigureOnBoard(&m.currentFigure)
+	m.gameBoard.DrawFigureAs(&m.currentFigure, game.TravelingCell)
+}
+
+func (m *gameSession) TryMoveFigure(movementFunction func(*game.Figure)) {
+	if m.figureActive {
+		m.moveFigure(movementFunction)
+	}
 }
 
 func (g *gameSession) View() string {
@@ -76,7 +90,7 @@ func StartGame(board *game.GameBoard) {
 }
 
 func tickCmd() tea.Cmd {
-	return tea.Tick(time.Second, func(t time.Time) tea.Msg {
+	return tea.Tick(660*time.Millisecond, func(t time.Time) tea.Msg {
 		return tickMsg(t)
 	})
 }
