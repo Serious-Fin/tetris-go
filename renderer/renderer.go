@@ -38,12 +38,7 @@ func (m *gameSession) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.figureActive = true
 		}
 
-		if m.gameBoard.CollisionDetected(&m.currentFigure, game.Point{Row: 1, Col: 0}, m.currentFigure.GeometryIndex) {
-			m.gameBoard.DrawFigureAs(&m.currentFigure, game.FilledCell)
-			m.figureActive = false
-		} else {
-			m.TryMoveFigure(m.gameBoard.MoveDown)
-		}
+		m.MoveDownLogic()
 
 		return m, tickCmd()
 
@@ -60,6 +55,9 @@ func (m *gameSession) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "up":
 			m.TryMoveFigure(m.gameBoard.Rotate)
+
+		case "down":
+			m.MoveDownLogic()
 		}
 	}
 	return m, nil
@@ -77,6 +75,28 @@ func (m *gameSession) TryMoveFigure(movementFunction func(*game.Figure)) {
 	}
 }
 
+func (g *gameSession) MoveDownLogic() {
+	if g.gameBoard.CollisionDetected(&g.currentFigure, game.Point{Row: 1, Col: 0}, g.currentFigure.GeometryIndex) {
+		g.gameBoard.DrawFigureAs(&g.currentFigure, game.FilledCell)
+		g.figureActive = false
+
+		if g.IsGameOver(&g.currentFigure) {
+			os.Exit(1)
+		}
+	} else {
+		g.TryMoveFigure(g.gameBoard.MoveDown)
+	}
+}
+
+func (g *gameSession) IsGameOver(f *game.Figure) bool {
+	for _, point := range f.Geometries[f.GeometryIndex].Points {
+		if f.MiddlePos.Row+point.Row < 0 {
+			return true
+		}
+	}
+	return false
+}
+
 func (g *gameSession) View() string {
 	return g.gameBoard.StringifyBoard()
 }
@@ -90,7 +110,7 @@ func StartGame(board *game.GameBoard) {
 }
 
 func tickCmd() tea.Cmd {
-	return tea.Tick(660*time.Millisecond, func(t time.Time) tea.Msg {
+	return tea.Tick(500*time.Millisecond, func(t time.Time) tea.Msg {
 		return tickMsg(t)
 	})
 }
