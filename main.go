@@ -8,7 +8,7 @@ import (
 
 func main() {
 	fmt.Println("Starting tetris")
-	gameBoard := game.CreateBoard(10, 20)
-	gameBoard.PopulateBoard(game.EmptyCell)
-	renderer.StartGame(gameBoard)
+	board := game.CreateBoard(10, 20)
+	board.PopulateBoard(game.EmptyCell)
+	renderer.StartGame(board)
 }

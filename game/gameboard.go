@@ -26,11 +26,11 @@ type GameBoard struct {
 }
 
 func CreateBoard(width, height int) *GameBoard {
-	gameBoard := GameBoard{width, height, make([][]int, height)}
+	board := GameBoard{width, height, make([][]int, height)}
 	for row := range height {
-		gameBoard.Board[row] = make([]int, width)
+		board.Board[row] = make([]int, width)
 	}
-	return &gameBoard
+	return &board
 }
 
 func (b *GameBoard) PopulateBoard(value int) {
