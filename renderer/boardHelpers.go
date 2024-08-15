@@ -37,3 +37,12 @@ func (s *gameSession) invertRowColor() {
 		}
 	}
 }
+
+func (s *gameSession) halfBoardLength() int {
+	return (s.board.Width / 2)
+}
+
+func (s *gameSession) paintTwoPixelsMirrored() {
+	s.board.Board[s.aParams.lastPaintedPoint.Row][s.aParams.lastPaintedPoint.Col] = game.Border
+	s.board.Board[s.aParams.lastPaintedPoint.Row][s.board.Width-s.aParams.lastPaintedPoint.Col-1] = game.Border
+}

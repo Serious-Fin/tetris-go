@@ -2,7 +2,6 @@ package renderer
 
 import (
 	"aug/tetris/game"
-	"os"
 )
 
 func (s *gameSession) moveFigure(movementFunction func(*game.Figure)) {
@@ -18,7 +17,7 @@ func (s *gameSession) tryMoveFigure(movementFunction func(*game.Figure)) {
 }
 
 func (s *gameSession) canMoveFigure() bool {
-	return s.isFigureActive && !s.isCleaningBoardInProgress
+	return s.isFigureActive && !s.isPlayingAnimation
 }
 
 func (s *gameSession) moveAndSolidifyIfCollision() {
@@ -31,7 +30,7 @@ func (s *gameSession) moveAndSolidifyIfCollision() {
 		s.isFigureActive = false
 
 		if isGameOver(&s.currentFigure) {
-			os.Exit(1)
+			s.isPlayingAnimation = true
 		}
 	} else {
 		s.tryMoveFigure(s.board.MoveDown)

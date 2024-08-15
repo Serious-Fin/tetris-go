@@ -17,6 +17,7 @@ const (
 	CellL      = 6
 	CellJ      = 7
 	CellT      = 8
+	Border     = 9
 )
 
 type GameBoard struct {
@@ -95,6 +96,9 @@ func stringifyCell(cellValue int) (string, error) {
 
 	case CellT:
 		return aurora.Sprintf(aurora.BgMagenta("  ")), nil
+
+	case Border:
+		return aurora.Sprintf(aurora.BgBlue("  ")), nil
 	}
 
 	return "", fmt.Errorf("\"%d\" is not a valid board cell value", cellValue)

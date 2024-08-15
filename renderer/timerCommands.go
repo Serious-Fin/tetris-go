@@ -12,8 +12,14 @@ func tickCmd() tea.Cmd {
 	})
 }
 
-func rowBeepCmd() tea.Cmd {
+func deleteRowCmd() tea.Cmd {
 	return tea.Tick(85*time.Millisecond, func(t time.Time) tea.Msg {
-		return rowBeepMsg(1)
+		return playAnimationMsg(deleteRowAnimation)
+	})
+}
+
+func gameOverCmd() tea.Cmd {
+	return tea.Tick(20*time.Millisecond, func(t time.Time) tea.Msg {
+		return playAnimationMsg(gameOverAnimation)
 	})
 }

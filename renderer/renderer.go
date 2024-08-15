@@ -10,27 +10,40 @@ import (
 )
 
 type gameSession struct {
-	board                     *game.GameBoard
-	currentFigure             game.Figure
-	isFigureActive            bool
-	isCleaningBoardInProgress bool
-	rowToDeleteNext           int
-	timesRowFlashedBefore     int
+	board              *game.GameBoard
+	currentFigure      game.Figure
+	isFigureActive     bool
+	isPlayingAnimation bool
+	rowToDeleteNext    int
+	aParams            animationParams
+}
+
+type animationParams struct {
+	timesRowFlashedBefore int
+	lastPaintedPoint      game.Point
 }
 
 type tickMsg time.Time
-type rowBeepMsg int
+type playAnimationMsg int
 
+const gameOverAnimation = 1
+const deleteRowAnimation = 2
 const rowFlashesBeforeDisappearing = 4
 
 func initialModel(board *game.GameBoard) *gameSession {
 	return &gameSession{
-		board:                     board,
-		isFigureActive:            true,
-		currentFigure:             *game.GetRandomFigure(),
-		isCleaningBoardInProgress: false,
-		rowToDeleteNext:           -1,
-		timesRowFlashedBefore:     0,
+		board:              board,
+		isFigureActive:     true,
+		currentFigure:      *game.GetRandomFigure(),
+		isPlayingAnimation: false,
+		rowToDeleteNext:    -1,
+		aParams: animationParams{
+			timesRowFlashedBefore: -1,
+			lastPaintedPoint: game.Point{
+				Row: board.Height - 1,
+				Col: board.Width - 1,
+			},
+		},
 	}
 }
 
@@ -41,20 +54,37 @@ func (s gameSession) Init() tea.Cmd {
 func (s *gameSession) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
-	case rowBeepMsg:
-		s.invertRowColor()
-		s.timesRowFlashedBefore += 1
-		return s.beepOrContinueGame()
+	case playAnimationMsg:
+		if msg == deleteRowAnimation {
+			s.invertRowColor()
+			s.aParams.timesRowFlashedBefore += 1
+			return s.beepOrContinueGame()
+		}
+
+		if msg == gameOverAnimation {
+			s.paintTwoPixelsMirrored()
+			if s.aParams.lastPaintedPoint.Row == 0 && s.aParams.lastPaintedPoint.Col < s.halfBoardLength() {
+				os.Exit(1)
+			}
+			s.pickNextPixel()
+
+			return s, gameOverCmd()
+		}
 
 	case tickMsg:
 		if !s.isFigureActive {
 			s.startCleaningFullRows()
-			if s.isCleaningBoardInProgress {
-				return s, rowBeepCmd()
+			if s.isPlayingAnimation {
+				return s, deleteRowCmd()
 			}
 			s.dropNewFigure()
 		}
 		s.moveAndSolidifyIfCollision()
+
+		if s.isPlayingAnimation {
+			return s, gameOverCmd()
+		}
+
 		return s, tickCmd()
 
 	case tea.KeyMsg:
